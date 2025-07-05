@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Calendar, Plus, Edit, Trash2, User } from 'lucide-react';
+import { Calendar, Plus, Edit, Trash2, User, Clock, MapPin } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { getJadwalAbsensi, createJadwalAbsensi, updateJadwalAbsensi, deleteJadwalAbsensi, JadwalAbsensi } from '@/lib/data';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
@@ -155,80 +155,83 @@ export default function JadwalPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="p-6 space-y-6">
+      {/* Header */}
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Jadwal Absensi</h1>
-          <p className="text-gray-600 mt-2">Manage attendance schedules</p>
+          <p className="text-gray-600 mt-2">Manage attendance schedules and track student participation</p>
         </div>
         
-        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="bg-green-500 hover:bg-green-600">
-              <Plus className="h-4 w-4 mr-2" />
-              Create Schedule
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
-            <DialogHeader>
-              <DialogTitle>Create New Schedule</DialogTitle>
-            </DialogHeader>
-            <form onSubmit={handleCreate} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="create-title">Title</Label>
-                <Input
-                  id="create-title"
-                  value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  placeholder="e.g., Pertemuan 1"
-                  required
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="create-description">Description</Label>
-                <Textarea
-                  id="create-description"
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  placeholder="Enter schedule description"
-                  required
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="create-tanggal">Date</Label>
-                <Input
-                  id="create-tanggal"
-                  type="date"
-                  value={formData.tanggal}
-                  onChange={(e) => setFormData({ ...formData, tanggal: e.target.value })}
-                  required
-                />
-              </div>
-              
-              <div className="flex justify-end space-x-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={closeCreateDialog}
-                >
-                  Cancel
-                </Button>
-                <Button type="submit" disabled={isCreating}>
-                  {isCreating ? (
-                    <>
-                      <LoadingSpinner className="mr-2 h-4 w-4" />
-                      Creating...
-                    </>
-                  ) : (
-                    'Create Schedule'
-                  )}
-                </Button>
-              </div>
-            </form>
-          </DialogContent>
-        </Dialog>
+        {(user?.role === 'pengajar' || user?.role === 'admin') && (
+          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="bg-green-500 hover:bg-green-600 text-white">
+                <Plus className="h-4 w-4 mr-2" />
+                Create Schedule
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px]">
+              <DialogHeader>
+                <DialogTitle>Create New Schedule</DialogTitle>
+              </DialogHeader>
+              <form onSubmit={handleCreate} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="create-title">Title</Label>
+                  <Input
+                    id="create-title"
+                    value={formData.title}
+                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                    placeholder="e.g., Pertemuan 1"
+                    required
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="create-description">Description</Label>
+                  <Textarea
+                    id="create-description"
+                    value={formData.description}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    placeholder="Enter schedule description"
+                    required
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="create-tanggal">Date</Label>
+                  <Input
+                    id="create-tanggal"
+                    type="date"
+                    value={formData.tanggal}
+                    onChange={(e) => setFormData({ ...formData, tanggal: e.target.value })}
+                    required
+                  />
+                </div>
+                
+                <div className="flex justify-end space-x-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={closeCreateDialog}
+                  >
+                    Cancel
+                  </Button>
+                  <Button type="submit" disabled={isCreating}>
+                    {isCreating ? (
+                      <>
+                        <LoadingSpinner className="mr-2 h-4 w-4" />
+                        Creating...
+                      </>
+                    ) : (
+                      'Create Schedule'
+                    )}
+                  </Button>
+                </div>
+              </form>
+            </DialogContent>
+          </Dialog>
+        )}
       </div>
 
       {/* Edit Dialog */}
@@ -294,57 +297,131 @@ export default function JadwalPage() {
         </DialogContent>
       </Dialog>
 
+      {/* Statistics Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card className="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-blue-100 text-sm">Total Schedules</p>
+                <p className="text-3xl font-bold">{jadwalList.length}</p>
+              </div>
+              <Calendar className="h-8 w-8 text-blue-200" />
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card className="bg-gradient-to-r from-green-500 to-green-600 text-white">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-green-100 text-sm">This Week</p>
+                <p className="text-3xl font-bold">3</p>
+              </div>
+              <Clock className="h-8 w-8 text-green-200" />
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card className="bg-gradient-to-r from-purple-500 to-purple-600 text-white">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-purple-100 text-sm">Completed</p>
+                <p className="text-3xl font-bold">12</p>
+              </div>
+              <Calendar className="h-8 w-8 text-purple-200" />
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card className="bg-gradient-to-r from-orange-500 to-orange-600 text-white">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-orange-100 text-sm">Attendance Rate</p>
+                <p className="text-3xl font-bold">85%</p>
+              </div>
+              <User className="h-8 w-8 text-orange-200" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
       {/* Jadwal List */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {jadwalList.length === 0 ? (
           <div className="col-span-full text-center py-12">
-            <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-500 text-lg">No schedules available</p>
+            <div className="bg-gray-100 rounded-full w-24 h-24 flex items-center justify-center mx-auto mb-4">
+              <Calendar className="h-12 w-12 text-gray-400" />
+            </div>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No schedules available</h3>
+            <p className="text-gray-500">Create your first schedule to get started</p>
+            {(user?.role === 'pengajar' || user?.role === 'admin') && (
+              <Button 
+                className="mt-4 bg-green-500 hover:bg-green-600"
+                onClick={() => setIsCreateDialogOpen(true)}
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Create Schedule
+              </Button>
+            )}
           </div>
         ) : (
           jadwalList.map((jadwal) => (
-            <Card key={jadwal.id} className="hover:shadow-lg transition-shadow">
+            <Card key={jadwal.id} className="hover:shadow-lg transition-all duration-300 border-0 shadow-md">
               <CardHeader className="pb-3">
-                <CardTitle className="text-lg">{jadwal.title}</CardTitle>
-                <CardDescription className="text-sm text-gray-600">
-                  {new Date(jadwal.tanggal).toLocaleDateString('id-ID', {
-                    weekday: 'long',
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                  })}
-                </CardDescription>
+                <div className="flex justify-between items-start">
+                  <div className="flex-1">
+                    <CardTitle className="text-lg font-semibold text-gray-900">{jadwal.title}</CardTitle>
+                    <CardDescription className="text-sm text-gray-600 mt-1">
+                      <div className="flex items-center gap-2">
+                        <Calendar className="h-4 w-4" />
+                        {new Date(jadwal.tanggal).toLocaleDateString('id-ID', {
+                          weekday: 'long',
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric'
+                        })}
+                      </div>
+                    </CardDescription>
+                  </div>
+                </div>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-600 text-sm mb-4">{jadwal.description}</p>
+                <p className="text-gray-600 text-sm mb-4 line-clamp-2">{jadwal.description}</p>
                 
                 {jadwal.createdByName && (
-                  <div className="flex items-center gap-2 mb-4 text-sm text-gray-500">
-                    <User className="h-4 w-4" />
-                    <span>Created by {jadwal.createdByName}</span>
+                  <div className="flex items-center gap-2 mb-4 p-2 bg-gray-50 rounded-lg">
+                    <div className="bg-green-500 p-1 rounded-full">
+                      <User className="h-3 w-3 text-white" />
+                    </div>
+                    <span className="text-xs text-gray-600">Created by {jadwal.createdByName}</span>
                   </div>
                 )}
                 
-                <div className="flex gap-2">
-                  <Button 
-                    size="sm" 
-                    variant="outline" 
-                    className="flex-1"
-                    onClick={() => handleEdit(jadwal)}
-                  >
-                    <Edit className="h-4 w-4 mr-1" />
-                    Edit
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => handleDelete(jadwal.id)}
-                    className="flex-1 border-red-200 text-red-600 hover:bg-red-50"
-                  >
-                    <Trash2 className="h-4 w-4 mr-1" />
-                    Delete
-                  </Button>
-                </div>
+                {(user?.role === 'pengajar' || user?.role === 'admin') && (
+                  <div className="flex gap-2">
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      className="flex-1 hover:bg-blue-50 hover:border-blue-200"
+                      onClick={() => handleEdit(jadwal)}
+                    >
+                      <Edit className="h-4 w-4 mr-1" />
+                      Edit
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleDelete(jadwal.id)}
+                      className="flex-1 border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300"
+                    >
+                      <Trash2 className="h-4 w-4 mr-1" />
+                      Delete
+                    </Button>
+                  </div>
+                )}
               </CardContent>
             </Card>
           ))

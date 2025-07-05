@@ -15,11 +15,20 @@ export const Sidebar = () => {
     const baseItems = [
       { href: '/dashboard', label: 'Dashboard', icon: Home },
       { href: '/dashboard/profile', label: 'Profile', icon: Users },
-      { href: '/dashboard/jadwal', label: 'Jadwal', icon: Calendar },
+    ];
+
+    // Add role-specific menu items
+    if (user?.role === 'pengajar' || user?.role === 'admin') {
+      baseItems.push(
+        { href: '/dashboard/jadwal', label: 'Jadwal', icon: Calendar },
+      );
+    }
+
+    baseItems.push(
       { href: '/dashboard/tes-harian', label: 'Tes Harian', icon: Star },
       { href: '/dashboard/notifikasi', label: 'Notifikasi', icon: Bell },
       { href: '/dashboard/materi', label: 'Modul Pembelajaran', icon: BookOpen },
-    ];
+    );
 
     if (user?.role === 'admin') {
       baseItems.push(

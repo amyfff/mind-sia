@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { BookOpen, Plus, Edit, Trash2, AlertCircle, User } from 'lucide-react';
+import { BookOpen, Plus, Edit, Trash2, User, Star, TrendingUp, Target } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { getMateri, createMateri, updateMateri, deleteMateri, Materi } from '@/lib/data';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
@@ -146,13 +146,26 @@ export default function MateriPage() {
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case 'High':
-        return 'bg-red-500';
+        return 'bg-red-500 text-white';
       case 'Medium':
-        return 'bg-yellow-500';
+        return 'bg-yellow-500 text-white';
       case 'Low':
-        return 'bg-green-500';
+        return 'bg-green-500 text-white';
       default:
-        return 'bg-gray-500';
+        return 'bg-gray-500 text-white';
+    }
+  };
+
+  const getPriorityIcon = (priority: string) => {
+    switch (priority) {
+      case 'High':
+        return <TrendingUp className="h-3 w-3" />;
+      case 'Medium':
+        return <Target className="h-3 w-3" />;
+      case 'Low':
+        return <Star className="h-3 w-3" />;
+      default:
+        return <Star className="h-3 w-3" />;
     }
   };
 
@@ -176,17 +189,18 @@ export default function MateriPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="p-6 space-y-6">
+      {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Materi</h1>
-          <p className="text-gray-600 mt-2">Manage learning materials</p>
+          <h1 className="text-3xl font-bold text-gray-900">Modul Pembelajaran</h1>
+          <p className="text-gray-600 mt-2">Manage learning materials and educational content</p>
         </div>
         
         {(user?.role === 'pengajar' || user?.role === 'admin') && (
           <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
             <DialogTrigger asChild>
-              <Button className="bg-green-500 hover:bg-green-600">
+              <Button className="bg-green-500 hover:bg-green-600 text-white">
                 <Plus className="h-4 w-4 mr-2" />
                 Create Materi
               </Button>
@@ -367,22 +381,85 @@ export default function MateriPage() {
         </DialogContent>
       </Dialog>
 
+      {/* Statistics Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card className="bg-gradient-to-r from-purple-500 to-purple-600 text-white">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-purple-100 text-sm">Total Materials</p>
+                <p className="text-3xl font-bold">{materiList.length}</p>
+              </div>
+              <BookOpen className="h-8 w-8 text-purple-200" />
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card className="bg-gradient-to-r from-red-500 to-red-600 text-white">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-red-100 text-sm">High Priority</p>
+                <p className="text-3xl font-bold">{materiList.filter(m => m.priority === 'High').length}</p>
+              </div>
+              <TrendingUp className="h-8 w-8 text-red-200" />
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card className="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-blue-100 text-sm">Subjects</p>
+                <p className="text-3xl font-bold">{new Set(materiList.map(m => m.subject)).size}</p>
+              </div>
+              <Target className="h-8 w-8 text-blue-200" />
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card className="bg-gradient-to-r from-green-500 to-green-600 text-white">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-green-100 text-sm">Categories</p>
+                <p className="text-3xl font-bold">{new Set(materiList.map(m => m.category)).size}</p>
+              </div>
+              <Star className="h-8 w-8 text-green-200" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
       {/* Materi List */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {materiList.length === 0 ? (
           <div className="col-span-full text-center py-12">
-            <BookOpen className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-500 text-lg">No materials available</p>
+            <div className="bg-gray-100 rounded-full w-24 h-24 flex items-center justify-center mx-auto mb-4">
+              <BookOpen className="h-12 w-12 text-gray-400" />
+            </div>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No materials available</h3>
+            <p className="text-gray-500">Create your first learning material to get started</p>
+            {(user?.role === 'pengajar' || user?.role === 'admin') && (
+              <Button 
+                className="mt-4 bg-green-500 hover:bg-green-600"
+                onClick={() => setIsCreateDialogOpen(true)}
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Create Materi
+              </Button>
+            )}
           </div>
         ) : (
           materiList.map((materi) => (
-            <Card key={materi.id} className="hover:shadow-lg transition-shadow">
+            <Card key={materi.id} className="hover:shadow-lg transition-all duration-300 border-0 shadow-md">
               <CardHeader className="pb-3">
                 <div className="flex justify-between items-start">
                   <div className="flex-1">
-                    <CardTitle className="text-lg">{materi.judul}</CardTitle>
+                    <CardTitle className="text-lg font-semibold text-gray-900">{materi.judul}</CardTitle>
                     <div className="flex items-center gap-2 mt-2">
-                      <Badge variant="secondary" className="text-xs">
+                      <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-700">
                         {materi.subject}
                       </Badge>
                       <Badge variant="outline" className="text-xs">
@@ -390,18 +467,21 @@ export default function MateriPage() {
                       </Badge>
                     </div>
                   </div>
-                  <Badge className={`${getPriorityColor(materi.priority)} text-white`}>
+                  <Badge className={`${getPriorityColor(materi.priority)} flex items-center gap-1`}>
+                    {getPriorityIcon(materi.priority)}
                     {materi.priority}
                   </Badge>
                 </div>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-600 text-sm mb-4">{materi.deskripsi}</p>
+                <p className="text-gray-600 text-sm mb-4 line-clamp-3">{materi.deskripsi}</p>
                 
                 {materi.createdByName && (
-                  <div className="flex items-center gap-2 mb-4 text-sm text-gray-500">
-                    <User className="h-4 w-4" />
-                    <span>Created by {materi.createdByName}</span>
+                  <div className="flex items-center gap-2 mb-4 p-2 bg-gray-50 rounded-lg">
+                    <div className="bg-green-500 p-1 rounded-full">
+                      <User className="h-3 w-3 text-white" />
+                    </div>
+                    <span className="text-xs text-gray-600">Created by {materi.createdByName}</span>
                   </div>
                 )}
                 
@@ -410,7 +490,7 @@ export default function MateriPage() {
                     <Button 
                       size="sm" 
                       variant="outline" 
-                      className="flex-1"
+                      className="flex-1 hover:bg-blue-50 hover:border-blue-200"
                       onClick={() => handleEdit(materi)}
                     >
                       <Edit className="h-4 w-4 mr-1" />
@@ -420,7 +500,7 @@ export default function MateriPage() {
                       size="sm"
                       variant="outline"
                       onClick={() => handleDelete(materi.id)}
-                      className="flex-1 border-red-200 text-red-600 hover:bg-red-50"
+                      className="flex-1 border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300"
                     >
                       <Trash2 className="h-4 w-4 mr-1" />
                       Delete
