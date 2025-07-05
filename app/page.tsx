@@ -69,7 +69,7 @@ export default function Home() {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-green-50 to-blue-50 py-20">
+      <section className="relative bg-linear-to-br from-green-50 to-blue-50 py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-8">
@@ -152,7 +152,7 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className="absolute inset-0 bg-gradient-to-r from-green-400 to-blue-500 rounded-full opacity-20 blur-3xl"></div>
+              <div className="absolute inset-0 bg-linear-to-r from-green-400 to-blue-500 rounded-full opacity-20 blur-3xl"></div>
             </div>
           </div>
         </div>
@@ -253,7 +253,7 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow duration-300">
               <div className="relative">
-                <div className="h-48 bg-gradient-to-br from-purple-500 to-pink-500 rounded-t-lg flex items-center justify-center">
+                <div className="h-48 bg-linear-to-br from-purple-500 to-pink-500 rounded-t-lg flex items-center justify-center">
                   <div className="text-white text-6xl font-bold">UI</div>
                 </div>
                 <Badge className="absolute top-4 right-4 bg-white text-gray-900">Best Seller</Badge>
@@ -283,7 +283,7 @@ export default function Home() {
 
             <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow duration-300">
               <div className="relative">
-                <div className="h-48 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-t-lg flex items-center justify-center">
+                <div className="h-48 bg-linear-to-br from-blue-500 to-cyan-500 rounded-t-lg flex items-center justify-center">
                   <div className="text-white text-4xl font-bold">WEB</div>
                 </div>
                 <Badge className="absolute top-4 right-4 bg-white text-gray-900">Popular</Badge>
@@ -313,7 +313,7 @@ export default function Home() {
 
             <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow duration-300">
               <div className="relative">
-                <div className="h-48 bg-gradient-to-br from-green-500 to-teal-500 rounded-t-lg flex items-center justify-center">
+                <div className="h-48 bg-linear-to-br from-green-500 to-teal-500 rounded-t-lg flex items-center justify-center">
                   <div className="text-white text-4xl font-bold">API</div>
                 </div>
                 <Badge className="absolute top-4 right-4 bg-white text-gray-900">New</Badge>

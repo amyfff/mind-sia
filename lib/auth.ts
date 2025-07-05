@@ -1,3 +1,49 @@
+import bcrypt from 'bcryptjs'
+import jwt from 'jsonwebtoken'
+import { NextRequest } from 'next/server'
+
+export async function hashPassword(password: string): Promise<string> {
+  const saltRounds = 12
+  return await bcrypt.hash(password, saltRounds)
+}
+
+export async function comparePasswords(password: string, hashedPassword: string): Promise<boolean> {
+  return await bcrypt.compare(password, hashedPassword)
+}
+
+export function verifyJWT(token: string): string | jwt.JwtPayload | null {
+  try {
+    return jwt.verify(token, process.env.JWT_SECRET as string)
+  } catch (error) {
+    return null
+  }
+}
+export function verifyToken(req: NextRequest): string | jwt.JwtPayload | null {
+  const token = req.cookies.get('token')?.value
+  if (!token) return null
+  return verifyJWT(token)
+}
+
+export function OnlyForAdmin(req: NextRequest): boolean {
+  const token = req.cookies.get('token')?.value
+  if (!token) return false
+  const decoded = decryptToken(token)
+  return decoded?.role === 'PENGAJAR' || decoded?.role === 'ADMIN'
+}
+
+export function decryptToken(token: string): { id: string; email: string; role: string ; name: string, kelas: string, nim: string } | null {
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { id: string; email: string; role: string, name: string, kelas: string, nim: string }
+    return decoded
+  } catch (error) {
+    console.error('Token decryption error:', error)
+    return null
+  }
+}
+
+export async function verifyPassword(password: string, hashedPassword: string): Promise<boolean> {
+  return bcrypt.compare(password, hashedPassword)
+}
 export type UserRole = 'peserta' | 'pengajar' | 'admin';
 
 export interface User {

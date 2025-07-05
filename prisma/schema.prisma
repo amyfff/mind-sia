@@ -1,0 +1,105 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  // output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  PENGAJAR
+  PESERTA
+}
+
+enum StatusAbsen {
+  HADIR
+  IZIN
+  SAKIT
+}
+
+model User {
+  id String @id @default(uuid())
+  email String @unique
+  password String
+  name String
+  role Role
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deleted Boolean @default(false)
+  deletedAt DateTime?
+  deletedBy String?
+
+  absensi Absensi[]
+  materi Materi[]
+  jadwalAbsensi JadwalAbsensi[] @relation("AdminCreatedJadwal")
+}
+
+model JadwalAbsensi {
+  id String @id @default(uuid())
+  title String
+  description String
+  tanggal DateTime
+  createdBy String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deleted Boolean @default(false)
+  deletedAt DateTime?
+  deletedBy String?
+
+  absensi Absensi[]
+  admin User @relation("AdminCreatedJadwal", fields: [createdBy], references: [id])
+
+  @@index([createdBy])
+  @@index([tanggal])
+}
+
+model Absensi {
+  id String @id @default(uuid())
+  status StatusAbsen
+  userId String
+  jadwalId String
+
+  user User @relation(fields: [userId], references: [id])
+  jadwal JadwalAbsensi @relation(fields: [jadwalId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String
+  updatedBy String
+  deleted Boolean @default(false)
+  deletedAt DateTime?
+  deletedBy String?
+
+  @@index([userId])
+  @@index([jadwalId])
+}
+
+model Materi {
+  id String @id @default(uuid())
+  judul String
+  deskripsi String
+  category String // basic, advanced, etc.
+  subject String // e.g., "Math", "Science", etc.
+  priority String // e.g., "High", "Medium", "Low"
+  pengajarId String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deleted Boolean @default(false)
+  deletedAt DateTime?
+  deletedBy String?
+
+  pengajar User @relation(fields: [pengajarId], references: [id])
+
+  @@index([pengajarId])
+  @@index([createdAt])
+  @@index([updatedAt])
+}

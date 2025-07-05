@@ -107,7 +107,7 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6 p-6">
       {/* Welcome Banner */}
-      <div className="relative bg-gradient-to-r from-green-400 to-green-600 rounded-2xl p-8 text-white overflow-hidden">
+      <div className="relative bg-linear-to-r from-green-400 to-green-600 rounded-2xl p-8 text-white overflow-hidden">
         <div className="relative z-10 max-w-2xl">
           <h1 className="text-3xl font-bold mb-2">WELCOME BACK!</h1>
           <p className="text-green-100 mb-6 text-lg">
