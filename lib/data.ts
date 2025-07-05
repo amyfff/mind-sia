@@ -4,6 +4,7 @@ export interface JadwalAbsensi {
   description: string;
   tanggal: string;
   createdBy: string;
+  createdByName?: string; // Add this field to show creator name
 }
 
 export interface Materi {
@@ -14,6 +15,7 @@ export interface Materi {
   subject: string;
   priority: 'High' | 'Medium' | 'Low';
   createdBy: string;
+  createdByName?: string; // Add this field to show creator name
 }
 
 export interface AbsensiRecord {
@@ -39,14 +41,16 @@ export const mockJadwalAbsensi: JadwalAbsensi[] = [
     title: 'Pertemuan 1',
     description: 'Pertemuan pertama untuk pelatihan dasar React',
     tanggal: '2025-01-15',
-    createdBy: '2'
+    createdBy: '2',
+    createdByName: 'Jane Smith'
   },
   {
     id: '2',
     title: 'Pertemuan 2',
     description: 'Pertemuan kedua untuk pelatihan lanjutan',
     tanggal: '2025-01-20',
-    createdBy: '2'
+    createdBy: '2',
+    createdByName: 'Jane Smith'
   }
 ];
 
@@ -58,7 +62,8 @@ export const mockMateri: Materi[] = [
     category: 'Basic',
     subject: 'Matematika',
     priority: 'High',
-    createdBy: '2'
+    createdBy: '2',
+    createdByName: 'Jane Smith'
   },
   {
     id: '2',
@@ -67,7 +72,8 @@ export const mockMateri: Materi[] = [
     category: 'Web Development',
     subject: 'Programming',
     priority: 'Medium',
-    createdBy: '2'
+    createdBy: '2',
+    createdByName: 'Jane Smith'
   }
 ];
 
@@ -111,30 +117,45 @@ export const mockUsers: UserData[] = [
 
 export const mockAbsensi: AbsensiRecord[] = [];
 
+// Helper function to get user name by ID
+const getUserNameById = (userId: string): string => {
+  const user = mockUsers.find(u => u.id === userId);
+  return user ? user.name : 'Unknown User';
+};
+
 // API functions
 export const getJadwalAbsensi = async (): Promise<JadwalAbsensi[]> => {
   await new Promise(resolve => setTimeout(resolve, 500));
-  return mockJadwalAbsensi;
+  // Add creator names to the response
+  return mockJadwalAbsensi.map(jadwal => ({
+    ...jadwal,
+    createdByName: getUserNameById(jadwal.createdBy)
+  }));
 };
 
-export const createJadwalAbsensi = async (data: Omit<JadwalAbsensi, 'id'>): Promise<JadwalAbsensi> => {
+export const createJadwalAbsensi = async (data: Omit<JadwalAbsensi, 'id' | 'createdByName'>): Promise<JadwalAbsensi> => {
   await new Promise(resolve => setTimeout(resolve, 500));
   const newJadwal: JadwalAbsensi = {
     id: Date.now().toString(),
-    ...data
+    ...data,
+    createdByName: getUserNameById(data.createdBy)
   };
   mockJadwalAbsensi.push(newJadwal);
   return newJadwal;
 };
 
-export const updateJadwalAbsensi = async (id: string, data: Partial<Omit<JadwalAbsensi, 'id'>>): Promise<JadwalAbsensi> => {
+export const updateJadwalAbsensi = async (id: string, data: Partial<Omit<JadwalAbsensi, 'id' | 'createdByName'>>): Promise<JadwalAbsensi> => {
   await new Promise(resolve => setTimeout(resolve, 500));
   const index = mockJadwalAbsensi.findIndex(j => j.id === id);
   if (index === -1) {
     throw new Error('Jadwal not found');
   }
   
-  mockJadwalAbsensi[index] = { ...mockJadwalAbsensi[index], ...data };
+  mockJadwalAbsensi[index] = { 
+    ...mockJadwalAbsensi[index], 
+    ...data,
+    createdByName: data.createdBy ? getUserNameById(data.createdBy) : mockJadwalAbsensi[index].createdByName
+  };
   return mockJadwalAbsensi[index];
 };
 
@@ -148,27 +169,36 @@ export const deleteJadwalAbsensi = async (id: string): Promise<void> => {
 
 export const getMateri = async (): Promise<Materi[]> => {
   await new Promise(resolve => setTimeout(resolve, 500));
-  return mockMateri;
+  // Add creator names to the response
+  return mockMateri.map(materi => ({
+    ...materi,
+    createdByName: getUserNameById(materi.createdBy)
+  }));
 };
 
-export const createMateri = async (data: Omit<Materi, 'id'>): Promise<Materi> => {
+export const createMateri = async (data: Omit<Materi, 'id' | 'createdByName'>): Promise<Materi> => {
   await new Promise(resolve => setTimeout(resolve, 500));
   const newMateri: Materi = {
     id: Date.now().toString(),
-    ...data
+    ...data,
+    createdByName: getUserNameById(data.createdBy)
   };
   mockMateri.push(newMateri);
   return newMateri;
 };
 
-export const updateMateri = async (id: string, data: Partial<Omit<Materi, 'id'>>): Promise<Materi> => {
+export const updateMateri = async (id: string, data: Partial<Omit<Materi, 'id' | 'createdByName'>>): Promise<Materi> => {
   await new Promise(resolve => setTimeout(resolve, 500));
   const index = mockMateri.findIndex(m => m.id === id);
   if (index === -1) {
     throw new Error('Materi not found');
   }
   
-  mockMateri[index] = { ...mockMateri[index], ...data };
+  mockMateri[index] = { 
+    ...mockMateri[index], 
+    ...data,
+    createdByName: data.createdBy ? getUserNameById(data.createdBy) : mockMateri[index].createdByName
+  };
   return mockMateri[index];
 };
 

@@ -4,7 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, BookOpen, Users, CheckCircle, XCircle, Clock } from 'lucide-react';
+import { Calendar, BookOpen, Users, CheckCircle, XCircle, Clock, User } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { getJadwalAbsensi, submitAbsensi, JadwalAbsensi } from '@/lib/data';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
@@ -141,9 +141,26 @@ export default function DashboardPage() {
                     <div className="flex-1">
                       <h3 className="font-semibold text-lg text-gray-900">{jadwal.title}</h3>
                       <p className="text-gray-600 mt-1">{jadwal.description}</p>
-                      <div className="flex items-center gap-2 mt-2">
-                        <Calendar className="h-4 w-4 text-gray-400" />
-                        <span className="text-sm text-gray-500">{jadwal.tanggal}</span>
+                      <div className="flex items-center gap-4 mt-2">
+                        <div className="flex items-center gap-2">
+                          <Calendar className="h-4 w-4 text-gray-400" />
+                          <span className="text-sm text-gray-500">
+                            {new Date(jadwal.tanggal).toLocaleDateString('id-ID', {
+                              weekday: 'long',
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric'
+                            })}
+                          </span>
+                        </div>
+                        {jadwal.createdByName && (
+                          <div className="flex items-center gap-2">
+                            <User className="h-4 w-4 text-gray-400" />
+                            <span className="text-sm text-gray-500">
+                              Created by {jadwal.createdByName}
+                            </span>
+                          </div>
+                        )}
                       </div>
                     </div>
                     

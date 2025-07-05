@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { BookOpen, Plus, Edit, Trash2, AlertCircle } from 'lucide-react';
+import { BookOpen, Plus, Edit, Trash2, AlertCircle, User } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { getMateri, createMateri, updateMateri, deleteMateri, Materi } from '@/lib/data';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
@@ -397,6 +397,13 @@ export default function MateriPage() {
               </CardHeader>
               <CardContent>
                 <p className="text-gray-600 text-sm mb-4">{materi.deskripsi}</p>
+                
+                {materi.createdByName && (
+                  <div className="flex items-center gap-2 mb-4 text-sm text-gray-500">
+                    <User className="h-4 w-4" />
+                    <span>Created by {materi.createdByName}</span>
+                  </div>
+                )}
                 
                 {(user?.role === 'pengajar' || user?.role === 'admin') && (
                   <div className="flex gap-2">

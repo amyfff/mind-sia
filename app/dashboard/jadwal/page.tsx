@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Calendar, Plus, Edit, Trash2 } from 'lucide-react';
+import { Calendar, Plus, Edit, Trash2, User } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { getJadwalAbsensi, createJadwalAbsensi, updateJadwalAbsensi, deleteJadwalAbsensi, JadwalAbsensi } from '@/lib/data';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
@@ -317,6 +317,13 @@ export default function JadwalPage() {
               </CardHeader>
               <CardContent>
                 <p className="text-gray-600 text-sm mb-4">{jadwal.description}</p>
+                
+                {jadwal.createdByName && (
+                  <div className="flex items-center gap-2 mb-4 text-sm text-gray-500">
+                    <User className="h-4 w-4" />
+                    <span>Created by {jadwal.createdByName}</span>
+                  </div>
+                )}
                 
                 <div className="flex gap-2">
                   <Button 
