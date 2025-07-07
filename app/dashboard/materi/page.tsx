@@ -11,9 +11,63 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { BookOpen, Plus, Edit, Trash2, User, Star, TrendingUp, Target } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { getMateri, createMateri, updateMateri, deleteMateri, Materi } from '@/lib/data';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { useToast } from '@/hooks/use-toast';
+
+// --- API functions ---
+async function getMateri(role?: string) {
+  let url = '/api/admin/materi';
+  if (role === 'PESERTA') {
+    url = '/api/user/materi';
+  }
+  const res = await fetch(url, { credentials: 'include' });
+  if (!res.ok) throw new Error('Failed to fetch materi');
+  return res.json();
+}
+
+async function createMateri(data: any) {
+  const res = await fetch('/api/admin/materi', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error('Failed to create materi');
+  return res.json();
+}
+
+async function updateMateri(id: string, data: any) {
+  const res = await fetch(`/api/admin/materi/${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error('Failed to update materi');
+  return res.json();
+}
+
+async function deleteMateri(id: string) {
+  const res = await fetch(`/api/admin/materi/${id}`, {
+    method: 'DELETE',
+    credentials: 'include',
+  });
+  if (!res.ok) throw new Error('Failed to delete materi');
+  return res.json();
+}
+
+// --- Materi type ---
+type Materi = {
+  createdByName: any;
+  id: string;
+  judul: string;
+  deskripsi: string;
+  category: string;
+  subject: string;
+  priority: 'High' | 'Medium' | 'Low';
+  pengajar?: { id: string; name: string; email: string };
+  // ...other fields if needed
+};
 
 export default function MateriPage() {
   const { user } = useAuth();
@@ -30,23 +84,22 @@ export default function MateriPage() {
     deskripsi: '',
     category: '',
     subject: '',
-    priority: 'Medium' as 'High' | 'Medium' | 'Low'
+    priority: 'Medium' as 'High' | 'Medium' | 'Low',
   });
 
   useEffect(() => {
     const fetchMateri = async () => {
       try {
-        const data = await getMateri();
+        const data = await getMateri(user?.role);
         setMateriList(data);
       } catch (error) {
-        console.error('Error fetching materi:', error);
+        toast({ title: 'Error', description: 'Failed to fetch materi', variant: 'destructive' });
       } finally {
         setIsLoading(false);
       }
     };
-
     fetchMateri();
-  }, []);
+  }, [user?.role]);
 
   const resetForm = () => {
     setFormData({
@@ -54,33 +107,21 @@ export default function MateriPage() {
       deskripsi: '',
       category: '',
       subject: '',
-      priority: 'Medium'
+      priority: 'Medium',
     });
   };
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return;
-    
     setIsCreating(true);
     try {
-      const newMateri = await createMateri({
-        ...formData,
-        createdBy: user.id
-      });
+      const newMateri = await createMateri(formData);
       setMateriList([...materiList, newMateri]);
       setIsCreateDialogOpen(false);
       resetForm();
-      toast({
-        title: 'Success',
-        description: 'Materi created successfully',
-      });
+      toast({ title: 'Success', description: 'Materi created successfully' });
     } catch (error) {
-      toast({
-        title: 'Error',
-        description: 'Failed to create materi',
-        variant: 'destructive',
-      });
+      toast({ title: 'Error', description: 'Failed to create materi', variant: 'destructive' });
     } finally {
       setIsCreating(false);
     }
@@ -93,7 +134,7 @@ export default function MateriPage() {
       deskripsi: materi.deskripsi,
       category: materi.category,
       subject: materi.subject,
-      priority: materi.priority
+      priority: materi.priority,
     });
     setIsEditDialogOpen(true);
   };
@@ -101,7 +142,6 @@ export default function MateriPage() {
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingMateri) return;
-    
     setIsUpdating(true);
     try {
       const updatedMateri = await updateMateri(editingMateri.id, formData);
@@ -109,16 +149,9 @@ export default function MateriPage() {
       setIsEditDialogOpen(false);
       setEditingMateri(null);
       resetForm();
-      toast({
-        title: 'Success',
-        description: 'Materi updated successfully',
-      });
+      toast({ title: 'Success', description: 'Materi updated successfully' });
     } catch (error) {
-      toast({
-        title: 'Error',
-        description: 'Failed to update materi',
-        variant: 'destructive',
-      });
+      toast({ title: 'Error', description: 'Failed to update materi', variant: 'destructive' });
     } finally {
       setIsUpdating(false);
     }
@@ -126,20 +159,12 @@ export default function MateriPage() {
 
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this materi?')) return;
-    
     try {
       await deleteMateri(id);
       setMateriList(materiList.filter(m => m.id !== id));
-      toast({
-        title: 'Success',
-        description: 'Materi deleted successfully',
-      });
+      toast({ title: 'Success', description: 'Materi deleted successfully' });
     } catch (error) {
-      toast({
-        title: 'Error',
-        description: 'Failed to delete materi',
-        variant: 'destructive',
-      });
+      toast({ title: 'Error', description: 'Failed to delete materi', variant: 'destructive' });
     }
   };
 
@@ -196,8 +221,8 @@ export default function MateriPage() {
           <h1 className="text-3xl font-bold text-gray-900">Modul Pembelajaran</h1>
           <p className="text-gray-600 mt-2">Manage learning materials and educational content</p>
         </div>
-        
-        {(user?.role === 'pengajar' || user?.role === 'admin') && (
+
+        {(user?.role === 'PENGAJAR' || user?.role === 'ADMIN') && (
           <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
             <DialogTrigger asChild>
               <Button className="bg-green-500 hover:bg-green-600 text-white">
@@ -441,8 +466,8 @@ export default function MateriPage() {
             </div>
             <h3 className="text-lg font-medium text-gray-900 mb-2">No materials available</h3>
             <p className="text-gray-500">Create your first learning material to get started</p>
-            {(user?.role === 'pengajar' || user?.role === 'admin') && (
-              <Button 
+            {(user?.role === 'PENGAJAR' || user?.role === 'ADMIN') && (
+              <Button
                 className="mt-4 bg-green-500 hover:bg-green-600"
                 onClick={() => setIsCreateDialogOpen(true)}
               >
@@ -481,11 +506,11 @@ export default function MateriPage() {
                     <div className="bg-green-500 p-1 rounded-full">
                       <User className="h-3 w-3 text-white" />
                     </div>
-                    <span className="text-xs text-gray-600">Created by {materi.createdByName}</span>
+                    <span className="text-xs text-gray-600">Created by {materi.pengajar?.name}</span>
                   </div>
                 )}
-                
-                {(user?.role === 'pengajar' || user?.role === 'admin') && (
+
+                {(user?.role === 'PENGAJAR' || user?.role === 'ADMIN') && (
                   <div className="flex gap-2">
                     <Button 
                       size="sm" 

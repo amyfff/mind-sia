@@ -12,16 +12,21 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, isLoading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
+    if (isLoading) return; // Wait for auth to load
     if (!isAuthenticated) {
       router.push('/login');
+    } else if (user && user.role !== 'PESERTA' && user.role !== 'PENGAJAR' && user.role !== 'ADMIN') {
+      router.push('/unauthorized');
+    } else if (isAuthenticated && user && user.role === 'PESERTA') {
+      router.push('/dashboard');
     }
-  }, [isAuthenticated, router]);
+  }, [isAuthenticated, user, isLoading, router]);
 
-  if (!isAuthenticated || !user) {
+  if (isLoading || !isAuthenticated || !user) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <LoadingSpinner />

@@ -8,8 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "seed": "npx prisma db push && tsx ./prisma/seed.ts",
-    "studio": "npx prisma studio",
-    "test": "npm i next@next-14 react@18 react-dom@18 && npm i eslint-config-next@next-14 -D"
+    "studio": "npx prisma studio"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.1.1",

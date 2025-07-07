@@ -10,7 +10,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { useAuth } from '@/contexts/AuthContext';
-import { login as authLogin } from '@/lib/auth';
 import { BookOpen, User, Lock } from 'lucide-react';
 
 export default function LoginPage() {
@@ -30,12 +29,28 @@ export default function LoginPage() {
     setError('');
 
     try {
-      const user = await authLogin(formData.email, formData.password);
-      if (user) {
-        login(user);
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
+
+      const result = await response.json();
+      if (response.ok && result.data) {
+        login({
+          id: result.data.id,
+          name: result.data.name,
+          email: result.data.email,
+          role: result.data.role,
+        });
         router.push('/dashboard');
       } else {
-        setError('Invalid email or password');
+        setError(result.error || 'Invalid email or password');
       }
     } catch (err) {
       setError('An error occurred during login');

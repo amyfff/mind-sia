@@ -44,7 +44,7 @@ export function decryptToken(token: string): { id: string; email: string; role: 
 export async function verifyPassword(password: string, hashedPassword: string): Promise<boolean> {
   return bcrypt.compare(password, hashedPassword)
 }
-export type UserRole = 'peserta' | 'pengajar' | 'admin';
+export type UserRole = 'PESERTA' | 'PENGAJAR' | 'ADMIN';
 
 export interface User {
   id: string;
@@ -64,21 +64,21 @@ const mockUsers: (User & { password: string })[] = [
     id: '1',
     name: 'John Doe',
     email: 'peserta@example.com',
-    role: 'peserta',
+    role: 'PESERTA',
     password: 'password123'
   },
   {
     id: '2',
     name: 'Jane Smith',
     email: 'pengajar@example.com',
-    role: 'pengajar',
+    role: 'PENGAJAR',
     password: 'password123'
   },
   {
     id: '3',
     name: 'Admin User',
     email: 'admin@example.com',
-    role: 'admin',
+    role: 'ADMIN',
     password: 'password123'
   }
 ];

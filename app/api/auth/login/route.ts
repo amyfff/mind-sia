@@ -34,6 +34,7 @@ export async function POST(req: NextRequest) {
     // Set token in cookies
     const response = NextResponse.json({
       data: {
+        id: user.id, // include id
         name: user.name,
         email: user.email,
         role: user.role,

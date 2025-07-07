@@ -18,19 +18,20 @@ export const Sidebar = () => {
     ];
 
     // Add role-specific menu items
-    if (user?.role === 'pengajar' || user?.role === 'admin') {
-      baseItems.push(
-        { href: '/dashboard/jadwal', label: 'Jadwal', icon: Calendar },
-      );
-    }
+    // if (user?.role === 'PENGAJAR' || user?.role === 'ADMIN') {
+    //   baseItems.push(
+    //     { href: '/dashboard/jadwal', label: 'Jadwal', icon: Calendar },
+    //   );
+    // }
 
     baseItems.push(
+      { href: '/dashboard/jadwal', label: 'Jadwal', icon: Calendar },
       { href: '/dashboard/tes-harian', label: 'Tes Harian', icon: Star },
       { href: '/dashboard/notifikasi', label: 'Notifikasi', icon: Bell },
       { href: '/dashboard/materi', label: 'Modul Pembelajaran', icon: BookOpen },
     );
 
-    if (user?.role === 'admin') {
+    if (user?.role === 'ADMIN') {
       baseItems.push(
         { href: '/dashboard/users', label: 'Users', icon: Users },
       );

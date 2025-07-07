@@ -35,7 +35,7 @@ export default function UsersPage() {
 
   // Redirect if not admin
   useEffect(() => {
-    if (user && user.role !== 'admin') {
+    if (user && user.role !== 'ADMIN') {
       router.push('/dashboard');
       return;
     }
@@ -53,7 +53,7 @@ export default function UsersPage() {
       }
     };
 
-    if (user?.role === 'admin') {
+    if (user?.role === 'ADMIN') {
       fetchUsers();
     }
   }, [user]);
@@ -147,11 +147,11 @@ export default function UsersPage() {
 
   const getRoleBadgeColor = (role: string) => {
     switch (role) {
-      case 'admin':
+      case 'ADMIN':
         return 'bg-red-500 text-white';
-      case 'pengajar':
+      case 'PENGAJAR':
         return 'bg-blue-500 text-white';
-      case 'peserta':
+      case 'PESERTA':
         return 'bg-green-500 text-white';
       default:
         return 'bg-gray-500 text-white';
@@ -160,11 +160,11 @@ export default function UsersPage() {
 
   const getRoleLabel = (role: string) => {
     switch (role) {
-      case 'admin':
+      case 'ADMIN':
         return 'Admin';
-      case 'pengajar':
+      case 'PENGAJAR':
         return 'Teacher';
-      case 'peserta':
+      case 'PESERTA':
         return 'Student';
       default:
         return role;
@@ -183,7 +183,7 @@ export default function UsersPage() {
   };
 
   // Don't render if not admin
-  if (user?.role !== 'admin') {
+  if (user?.role !== 'ADMIN') {
     return null;
   }
 
@@ -196,16 +196,16 @@ export default function UsersPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="p-6 space-y-6">
+      {/* Header */}
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Users Management</h1>
           <p className="text-gray-600 mt-2">Manage system users and their roles</p>
         </div>
-        
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-green-500 hover:bg-green-600">
+            <Button className="bg-green-500 hover:bg-green-600 text-white">
               <Plus className="h-4 w-4 mr-2" />
               Create User
             </Button>
@@ -225,7 +225,6 @@ export default function UsersPage() {
                   required
                 />
               </div>
-              
               <div className="space-y-2">
                 <Label htmlFor="create-email">Email</Label>
                 <Input
@@ -237,7 +236,6 @@ export default function UsersPage() {
                   required
                 />
               </div>
-              
               <div className="space-y-2">
                 <Label htmlFor="create-role">Role</Label>
                 <Select value={formData.role} onValueChange={(value) => setFormData({ ...formData, role: value as 'peserta' | 'pengajar' | 'admin' })}>
@@ -251,7 +249,6 @@ export default function UsersPage() {
                   </SelectContent>
                 </Select>
               </div>
-              
               <div className="flex justify-end space-x-2">
                 <Button
                   type="button"
@@ -276,6 +273,43 @@ export default function UsersPage() {
         </Dialog>
       </div>
 
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card className="bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-md border-0">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-blue-100 text-sm">Total Users</p>
+                <p className="text-3xl font-bold">{usersList.length}</p>
+              </div>
+              <Users className="h-8 w-8 text-blue-200" />
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="bg-gradient-to-r from-green-500 to-green-600 text-white shadow-md border-0">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-green-100 text-sm">Students</p>
+                <p className="text-3xl font-bold">{usersList.filter(u => u.role === 'peserta').length}</p>
+              </div>
+              <UserCheck className="h-8 w-8 text-green-200" />
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="bg-gradient-to-r from-purple-500 to-purple-600 text-white shadow-md border-0">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-purple-100 text-sm">Teachers</p>
+                <p className="text-3xl font-bold">{usersList.filter(u => u.role === 'pengajar').length}</p>
+              </div>
+              <UserCheck className="h-8 w-8 text-purple-200" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
       {/* Edit Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="sm:max-w-[425px]">
@@ -293,7 +327,6 @@ export default function UsersPage() {
                 required
               />
             </div>
-            
             <div className="space-y-2">
               <Label htmlFor="edit-email">Email</Label>
               <Input
@@ -305,7 +338,6 @@ export default function UsersPage() {
                 required
               />
             </div>
-            
             <div className="space-y-2">
               <Label htmlFor="edit-role">Role</Label>
               <Select value={formData.role} onValueChange={(value) => setFormData({ ...formData, role: value as 'peserta' | 'pengajar' | 'admin' })}>
@@ -319,7 +351,6 @@ export default function UsersPage() {
                 </SelectContent>
               </Select>
             </div>
-            
             <div className="flex justify-end space-x-2">
               <Button
                 type="button"
@@ -343,57 +374,8 @@ export default function UsersPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Total Users</p>
-                <p className="text-3xl font-bold text-gray-900">{usersList.length}</p>
-              </div>
-              <div className="p-3 rounded-full bg-blue-500">
-                <Users className="h-6 w-6 text-white" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Students</p>
-                <p className="text-3xl font-bold text-gray-900">
-                  {usersList.filter(u => u.role === 'peserta').length}
-                </p>
-              </div>
-              <div className="p-3 rounded-full bg-green-500">
-                <UserCheck className="h-6 w-6 text-white" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Teachers</p>
-                <p className="text-3xl font-bold text-gray-900">
-                  {usersList.filter(u => u.role === 'pengajar').length}
-                </p>
-              </div>
-              <div className="p-3 rounded-full bg-purple-500">
-                <UserCheck className="h-6 w-6 text-white" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
       {/* Users Table */}
-      <Card>
+      <Card className="shadow-md border-0">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Users className="h-5 w-5" />
@@ -405,9 +387,19 @@ export default function UsersPage() {
         </CardHeader>
         <CardContent>
           {usersList.length === 0 ? (
-            <div className="text-center py-12">
-              <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-500 text-lg">No users found</p>
+            <div className="col-span-full text-center py-12">
+              <div className="bg-gray-100 rounded-full w-24 h-24 flex items-center justify-center mx-auto mb-4">
+                <Users className="h-12 w-12 text-gray-400" />
+              </div>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">No users found</h3>
+              <p className="text-gray-500">Create your first user to get started</p>
+              <Button
+                className="mt-4 bg-green-500 hover:bg-green-600 text-white"
+                onClick={() => setIsCreateDialogOpen(true)}
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Create User
+              </Button>
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -446,11 +438,11 @@ export default function UsersPage() {
                       <TableCell>
                         <div className="flex items-center gap-2 text-sm text-gray-600">
                           <Calendar className="h-4 w-4" />
-                          {new Date(userData.createdAt).toLocaleDateString('en-US', {
+                          {userData.createdAt ? new Date(userData.createdAt).toLocaleDateString('en-US', {
                             year: 'numeric',
                             month: 'short',
                             day: 'numeric'
-                          })}
+                          }) : '-'}
                         </div>
                       </TableCell>
                       <TableCell className="text-right">

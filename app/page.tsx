@@ -152,7 +152,7 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className="absolute inset-0 bg-linear-to-r from-green-400 to-blue-500 rounded-full opacity-20 blur-3xl"></div>
+              <div className="absolute inset-0 bg-linear-to-r from-green-400 to-blue-500 rounded-full blur-3xl"></div>
             </div>
           </div>
         </div>
@@ -163,11 +163,11 @@ export default function Home() {
             <div className="text-center mb-8">
               <p className="text-gray-500 font-medium">250+ Collaboration</p>
             </div>
-            <div className="flex justify-center items-center space-x-12 opacity-60">
-              <div className="text-2xl font-bold text-gray-400">duolingo</div>
-              <div className="text-2xl font-bold text-gray-400">Codecov</div>
-              <div className="text-2xl font-bold text-gray-400">UX Reading</div>
-              <div className="text-2xl font-bold text-gray-400">magic leap</div>
+            <div className="flex justify-center items-center space-x-12">
+              <div className="text-2xl font-bold text-gray-400/60">duolingo</div>
+              <div className="text-2xl font-bold text-gray-400/60">Codecov</div>
+              <div className="text-2xl font-bold text-gray-400/60">UX Reading</div>
+              <div className="text-2xl font-bold text-gray-400/60">magic leap</div>
             </div>
           </div>
         </div>
@@ -186,7 +186,7 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow duration-300 bg-green-500 text-white">
               <CardHeader className="pb-4">
-                <div className="bg-white bg-opacity-20 p-3 rounded-lg w-fit mb-4">
+                <div className="bg-white/20 p-3 rounded-lg w-fit mb-4">
                   <Target className="h-8 w-8 text-white" />
                 </div>
                 <CardTitle className="text-xl text-white">Interactive Design</CardTitle>

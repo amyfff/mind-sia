@@ -1,17 +1,18 @@
 'use client';
 
+import { useEffect, useState } from 'react';
+import { getJadwalAbsensi, createJadwalAbsensi, updateJadwalAbsensi, deleteJadwalAbsensi, JadwalAbsensi } from '@/lib/data';
 import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Calendar, Plus, Edit, Trash2, User, Clock, MapPin } from 'lucide-react';
-import { useEffect, useState } from 'react';
-import { getJadwalAbsensi, createJadwalAbsensi, updateJadwalAbsensi, deleteJadwalAbsensi, JadwalAbsensi } from '@/lib/data';
+import { Calendar, Plus, Edit, Trash2, User, Clock } from 'lucide-react';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
-import { useToast } from '@/hooks/use-toast';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 export default function JadwalPage() {
   const { user } = useAuth();
@@ -28,53 +29,40 @@ export default function JadwalPage() {
     description: '',
     tanggal: ''
   });
+  // Add absen state for peserta
+  const [absenStatus, setAbsenStatus] = useState<{ [jadwalId: string]: string }>({});
+  const [absenLoading, setAbsenLoading] = useState<{ [jadwalId: string]: boolean }>({});
 
   useEffect(() => {
     const fetchJadwal = async () => {
       try {
-        const data = await getJadwalAbsensi();
+        const data = await getJadwalAbsensi(user?.role);
         setJadwalList(data);
       } catch (error) {
-        console.error('Error fetching jadwal:', error);
+        toast({ title: 'Error', description: 'Failed to fetch schedules', variant: 'destructive' });
       } finally {
         setIsLoading(false);
       }
     };
-
-    fetchJadwal();
-  }, []);
+    if (user) fetchJadwal();
+  }, [toast, user]);
 
   const resetForm = () => {
-    setFormData({
-      title: '',
-      description: '',
-      tanggal: ''
-    });
+    setFormData({ title: '', description: '', tanggal: '' });
   };
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
-    
     setIsCreating(true);
     try {
-      const newJadwal = await createJadwalAbsensi({
-        ...formData,
-        createdBy: user.id
-      });
+      const newJadwal = await createJadwalAbsensi({ ...formData, createdBy: user.id });
       setJadwalList([...jadwalList, newJadwal]);
       setIsCreateDialogOpen(false);
       resetForm();
-      toast({
-        title: 'Success',
-        description: 'Schedule created successfully',
-      });
+      toast({ title: 'Success', description: 'Schedule created successfully' });
     } catch (error) {
-      toast({
-        title: 'Error',
-        description: 'Failed to create schedule',
-        variant: 'destructive',
-      });
+      toast({ title: 'Error', description: 'Failed to create schedule', variant: 'destructive' });
     } finally {
       setIsCreating(false);
     }
@@ -82,18 +70,13 @@ export default function JadwalPage() {
 
   const handleEdit = (jadwal: JadwalAbsensi) => {
     setEditingJadwal(jadwal);
-    setFormData({
-      title: jadwal.title,
-      description: jadwal.description,
-      tanggal: jadwal.tanggal
-    });
+    setFormData({ title: jadwal.title, description: jadwal.description, tanggal: jadwal.tanggal });
     setIsEditDialogOpen(true);
   };
 
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingJadwal) return;
-    
     setIsUpdating(true);
     try {
       const updatedJadwal = await updateJadwalAbsensi(editingJadwal.id, formData);
@@ -101,16 +84,9 @@ export default function JadwalPage() {
       setIsEditDialogOpen(false);
       setEditingJadwal(null);
       resetForm();
-      toast({
-        title: 'Success',
-        description: 'Schedule updated successfully',
-      });
+      toast({ title: 'Success', description: 'Schedule updated successfully' });
     } catch (error) {
-      toast({
-        title: 'Error',
-        description: 'Failed to update schedule',
-        variant: 'destructive',
-      });
+      toast({ title: 'Error', description: 'Failed to update schedule', variant: 'destructive' });
     } finally {
       setIsUpdating(false);
     }
@@ -118,20 +94,52 @@ export default function JadwalPage() {
 
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this schedule?')) return;
-    
     try {
       await deleteJadwalAbsensi(id);
       setJadwalList(jadwalList.filter(j => j.id !== id));
-      toast({
-        title: 'Success',
-        description: 'Schedule deleted successfully',
-      });
+      toast({ title: 'Success', description: 'Schedule deleted successfully' });
     } catch (error) {
-      toast({
-        title: 'Error',
-        description: 'Failed to delete schedule',
-        variant: 'destructive',
+      toast({ title: 'Error', description: 'Failed to delete schedule', variant: 'destructive' });
+    }
+  };
+
+  // Function to submit absen for peserta
+  const handleAbsen = async (jadwalId: string) => {
+    const status = absenStatus[jadwalId];
+    if (!status) {
+      toast({ title: 'Error', description: 'Pilih status absen', variant: 'destructive' });
+      return;
+    }
+    setAbsenLoading((prev) => ({ ...prev, [jadwalId]: true }));
+    try {
+      const res = await fetch(`/api/user/absen/${jadwalId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ status }),
       });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Gagal absen');
+      }
+      toast({ title: 'Success', description: 'Absen berhasil' });
+      setAbsenStatus((prev) => ({ ...prev, [jadwalId]: '' }));
+      // Refetch jadwal after absen
+      if (user) {
+        setIsLoading(true);
+        try {
+          const data = await getJadwalAbsensi(user.role);
+          setJadwalList(data);
+        } catch (error) {
+          toast({ title: 'Error', description: 'Failed to fetch schedules', variant: 'destructive' });
+        } finally {
+          setIsLoading(false);
+        }
+      }
+    } catch (error: any) {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    } finally {
+      setAbsenLoading((prev) => ({ ...prev, [jadwalId]: false }));
     }
   };
 
@@ -162,8 +170,7 @@ export default function JadwalPage() {
           <h1 className="text-3xl font-bold text-gray-900">Jadwal Absensi</h1>
           <p className="text-gray-600 mt-2">Manage attendance schedules and track student participation</p>
         </div>
-        
-        {(user?.role === 'pengajar' || user?.role === 'admin') && (
+        {(user?.role === 'PENGAJAR' || user?.role === 'ADMIN') && (
           <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
             <DialogTrigger asChild>
               <Button className="bg-green-500 hover:bg-green-600 text-white">
@@ -186,7 +193,6 @@ export default function JadwalPage() {
                     required
                   />
                 </div>
-                
                 <div className="space-y-2">
                   <Label htmlFor="create-description">Description</Label>
                   <Textarea
@@ -197,7 +203,6 @@ export default function JadwalPage() {
                     required
                   />
                 </div>
-                
                 <div className="space-y-2">
                   <Label htmlFor="create-tanggal">Date</Label>
                   <Input
@@ -208,24 +213,10 @@ export default function JadwalPage() {
                     required
                   />
                 </div>
-                
                 <div className="flex justify-end space-x-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={closeCreateDialog}
-                  >
-                    Cancel
-                  </Button>
+                  <Button type="button" variant="outline" onClick={closeCreateDialog}>Cancel</Button>
                   <Button type="submit" disabled={isCreating}>
-                    {isCreating ? (
-                      <>
-                        <LoadingSpinner className="mr-2 h-4 w-4" />
-                        Creating...
-                      </>
-                    ) : (
-                      'Create Schedule'
-                    )}
+                    {isCreating ? (<><LoadingSpinner className="mr-2 h-4 w-4" />Creating...</>) : 'Create Schedule'}
                   </Button>
                 </div>
               </form>
@@ -233,7 +224,6 @@ export default function JadwalPage() {
           </Dialog>
         )}
       </div>
-
       {/* Edit Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="sm:max-w-[425px]">
@@ -251,7 +241,6 @@ export default function JadwalPage() {
                 required
               />
             </div>
-            
             <div className="space-y-2">
               <Label htmlFor="edit-description">Description</Label>
               <Textarea
@@ -262,7 +251,6 @@ export default function JadwalPage() {
                 required
               />
             </div>
-            
             <div className="space-y-2">
               <Label htmlFor="edit-tanggal">Date</Label>
               <Input
@@ -273,30 +261,15 @@ export default function JadwalPage() {
                 required
               />
             </div>
-            
             <div className="flex justify-end space-x-2">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={closeEditDialog}
-              >
-                Cancel
-              </Button>
+              <Button type="button" variant="outline" onClick={closeEditDialog}>Cancel</Button>
               <Button type="submit" disabled={isUpdating}>
-                {isUpdating ? (
-                  <>
-                    <LoadingSpinner className="mr-2 h-4 w-4" />
-                    Updating...
-                  </>
-                ) : (
-                  'Update Schedule'
-                )}
+                {isUpdating ? (<><LoadingSpinner className="mr-2 h-4 w-4" />Updating...</>) : 'Update Schedule'}
               </Button>
             </div>
           </form>
         </DialogContent>
       </Dialog>
-
       {/* Statistics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card className="bg-linear-to-r from-blue-500 to-blue-600 text-white">
@@ -310,7 +283,6 @@ export default function JadwalPage() {
             </div>
           </CardContent>
         </Card>
-        
         <Card className="bg-linear-to-r from-green-500 to-green-600 text-white">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
@@ -322,7 +294,6 @@ export default function JadwalPage() {
             </div>
           </CardContent>
         </Card>
-        
         <Card className="bg-linear-to-r from-purple-500 to-purple-600 text-white">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
@@ -334,7 +305,6 @@ export default function JadwalPage() {
             </div>
           </CardContent>
         </Card>
-        
         <Card className="bg-linear-to-r from-orange-500 to-orange-600 text-white">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
@@ -347,7 +317,6 @@ export default function JadwalPage() {
           </CardContent>
         </Card>
       </div>
-
       {/* Jadwal List */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {jadwalList.length === 0 ? (
@@ -357,18 +326,15 @@ export default function JadwalPage() {
             </div>
             <h3 className="text-lg font-medium text-gray-900 mb-2">No schedules available</h3>
             <p className="text-gray-500">Create your first schedule to get started</p>
-            {(user?.role === 'pengajar' || user?.role === 'admin') && (
-              <Button 
-                className="mt-4 bg-green-500 hover:bg-green-600"
-                onClick={() => setIsCreateDialogOpen(true)}
-              >
+            {(user?.role === 'PENGAJAR' || user?.role === 'ADMIN') && (
+              <Button className="mt-4 bg-green-500 hover:bg-green-600" onClick={() => setIsCreateDialogOpen(true)}>
                 <Plus className="h-4 w-4 mr-2" />
                 Create Schedule
               </Button>
             )}
           </div>
         ) : (
-          jadwalList.map((jadwal) => (
+          jadwalList.map((jadwal: JadwalAbsensi) => (
             <Card key={jadwal.id} className="hover:shadow-lg transition-all duration-300 border-0 shadow-md">
               <CardHeader className="pb-3">
                 <div className="flex justify-between items-start">
@@ -390,7 +356,6 @@ export default function JadwalPage() {
               </CardHeader>
               <CardContent>
                 <p className="text-gray-600 text-sm mb-4 line-clamp-2">{jadwal.description}</p>
-                
                 {jadwal.createdByName && (
                   <div className="flex items-center gap-2 mb-4 p-2 bg-gray-50 rounded-lg">
                     <div className="bg-green-500 p-1 rounded-full">
@@ -399,27 +364,49 @@ export default function JadwalPage() {
                     <span className="text-xs text-gray-600">Created by {jadwal.createdByName}</span>
                   </div>
                 )}
-                
-                {(user?.role === 'pengajar' || user?.role === 'admin') && (
+                {(user?.role === 'PENGAJAR' || user?.role === 'ADMIN') && (
                   <div className="flex gap-2">
-                    <Button 
-                      size="sm" 
-                      variant="outline" 
-                      className="flex-1 hover:bg-blue-50 hover:border-blue-200"
-                      onClick={() => handleEdit(jadwal)}
-                    >
+                    <Button size="sm" variant="outline" className="flex-1 hover:bg-blue-50 hover:border-blue-200" onClick={() => handleEdit(jadwal)}>
                       <Edit className="h-4 w-4 mr-1" />
                       Edit
                     </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleDelete(jadwal.id)}
-                      className="flex-1 border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300"
-                    >
+                    <Button size="sm" variant="outline" onClick={() => handleDelete(jadwal.id)} className="flex-1 border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300">
                       <Trash2 className="h-4 w-4 mr-1" />
                       Delete
                     </Button>
+                  </div>
+                )}
+                {user?.role === 'PESERTA' && (
+                  <div className="flex flex-col gap-2 mt-2">
+                    {jadwal.alreadyAbsen === true ? (
+                      <div className="text-green-600 font-semibold text-sm">
+                        Sudah absen: <span className="uppercase">{jadwal.absenStatus || '-'}</span>
+                      </div>
+                    ) : (
+                      <>
+                        <RadioGroup
+                          value={absenStatus[jadwal.id] || ''}
+                          onValueChange={(val) => setAbsenStatus((prev) => ({ ...prev, [jadwal.id]: val }))}
+                          className="flex flex-row gap-4"
+                        >
+                          <RadioGroupItem value="HADIR" id={`hadir-${jadwal.id}`} />
+                          <Label htmlFor={`hadir-${jadwal.id}`}>Hadir</Label>
+                          <RadioGroupItem value="IZIN" id={`izin-${jadwal.id}`} />
+                          <Label htmlFor={`izin-${jadwal.id}`}>Izin</Label>
+                          <RadioGroupItem value="SAKIT" id={`sakit-${jadwal.id}`} />
+                          <Label htmlFor={`sakit-${jadwal.id}`}>Sakit</Label>
+                        </RadioGroup>
+                        <Button
+                          size="sm"
+                          className="w-fit bg-blue-500 hover:bg-blue-600 text-white"
+                          disabled={absenLoading[jadwal.id]}
+                          onClick={() => handleAbsen(jadwal.id)}
+                        >
+                          {absenLoading[jadwal.id] ? <LoadingSpinner className="mr-2 h-4 w-4" /> : null}
+                          Absen
+                        </Button>
+                      </>
+                    )}
                   </div>
                 )}
               </CardContent>
@@ -429,4 +416,8 @@ export default function JadwalPage() {
       </div>
     </div>
   );
+}
+
+function fetchJadwal() {
+  throw new Error('Function not implemented.');
 }

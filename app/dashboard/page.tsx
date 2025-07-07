@@ -56,11 +56,11 @@ export default function DashboardPage() {
 
   const getWelcomeMessage = () => {
     switch (user?.role) {
-      case 'peserta':
+      case 'PESERTA':
         return 'You have completed 60% of your goal this week! Start a new goal and improve your result.';
-      case 'pengajar':
+      case 'PENGAJAR':
         return 'Welcome back! You have 5 new students this week. Keep up the great work!';
-      case 'admin':
+      case 'ADMIN':
         return 'System overview: All services running smoothly. 45 active users today.';
       default:
         return 'Welcome to your dashboard';
@@ -68,13 +68,13 @@ export default function DashboardPage() {
   };
 
   const getStatsData = () => {
-    if (user?.role === 'admin') {
+    if (user?.role === 'ADMIN') {
       return [
         { label: 'Students', value: '359', color: 'text-green-500' },
         { label: 'Parent', value: '12', color: 'text-pink-500' },
         { label: 'Teachers', value: '04', color: 'text-orange-500' }
       ];
-    } else if (user?.role === 'pengajar') {
+    } else if (user?.role === 'PENGAJAR') {
       return [
         { label: 'Students', value: '24', color: 'text-green-500' },
         { label: 'Courses', value: '8', color: 'text-blue-500' },
@@ -171,7 +171,7 @@ export default function DashboardPage() {
                         <p className="text-sm text-gray-600 mt-1">{jadwal.description}</p>
                         <div className="flex items-center justify-between mt-2">
                           <span className="text-xs text-gray-500">{jadwal.tanggal}</span>
-                          {user?.role === 'peserta' && (
+                          {user?.role === 'PESERTA' && (
                             <div className="flex gap-1">
                               <Button
                                 size="sm"

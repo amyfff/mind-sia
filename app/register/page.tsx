@@ -33,11 +33,22 @@ export default function RegisterPage() {
     setError('');
 
     try {
-      const user = await authRegister(formData.name, formData.email, formData.password, formData.role);
-      if (user) {
-        login(user);
-        router.push('/dashboard');
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          password: formData.password,
+          role: formData.role.toUpperCase(), // API expects uppercase
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || 'Registration failed');
       }
+      // Optionally, auto-login or redirect
+      router.push('/login');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred during registration');
     } finally {

@@ -4,7 +4,9 @@ export interface JadwalAbsensi {
   description: string;
   tanggal: string;
   createdBy: string;
-  createdByName?: string; // Add this field to show creator name
+  createdByName: string; // Add this field to show creator name
+  alreadyAbsen: boolean; // Optional field to indicate if user has already submitted attendance
+  absenStatus: string; // Optional field to indicate attendance status
 }
 
 export interface Materi {
@@ -35,24 +37,6 @@ export interface UserData {
 }
 
 // Mock data
-export const mockJadwalAbsensi: JadwalAbsensi[] = [
-  {
-    id: '1',
-    title: 'Pertemuan 1',
-    description: 'Pertemuan pertama untuk pelatihan dasar React',
-    tanggal: '2025-01-15',
-    createdBy: '2',
-    createdByName: 'Jane Smith'
-  },
-  {
-    id: '2',
-    title: 'Pertemuan 2',
-    description: 'Pertemuan kedua untuk pelatihan lanjutan',
-    tanggal: '2025-01-20',
-    createdBy: '2',
-    createdByName: 'Jane Smith'
-  }
-];
 
 export const mockMateri: Materi[] = [
   {
@@ -123,50 +107,57 @@ const getUserNameById = (userId: string): string => {
   return user ? user.name : 'Unknown User';
 };
 
-// API functions
-export const getJadwalAbsensi = async (): Promise<JadwalAbsensi[]> => {
-  await new Promise(resolve => setTimeout(resolve, 500));
-  // Add creator names to the response
-  return mockJadwalAbsensi.map(jadwal => ({
+// --- JADWAL ABSENSI API (REAL BACKEND) ---
+
+export async function getJadwalAbsensi(role?: string): Promise<JadwalAbsensi[]> {
+  let endpoint = '/api/admin/absen';
+  if (role && role.toLowerCase() === 'peserta') {
+    endpoint = '/api/user/absen';
+  }
+  const res = await fetch(endpoint, { credentials: 'include' });
+  if (!res.ok) throw new Error('Failed to fetch jadwal');
+  const { data } = await res.json();
+  // Map admin.name to createdByName for display
+  return data.map((jadwal: any) => ({
     ...jadwal,
-    createdByName: getUserNameById(jadwal.createdBy)
+    createdByName: jadwal.admin?.name || '',
   }));
-};
+}
 
-export const createJadwalAbsensi = async (data: Omit<JadwalAbsensi, 'id' | 'createdByName'>): Promise<JadwalAbsensi> => {
-  await new Promise(resolve => setTimeout(resolve, 500));
-  const newJadwal: JadwalAbsensi = {
-    id: Date.now().toString(),
-    ...data,
-    createdByName: getUserNameById(data.createdBy)
-  };
-  mockJadwalAbsensi.push(newJadwal);
-  return newJadwal;
-};
+export async function createJadwalAbsensi(data: { title: string; description: string; tanggal: string; createdBy: string }): Promise<JadwalAbsensi> {
+  const res = await fetch('/api/admin/absen', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error('Failed to create jadwal');
+  const { data: jadwal } = await res.json();
+  return jadwal;
+}
 
-export const updateJadwalAbsensi = async (id: string, data: Partial<Omit<JadwalAbsensi, 'id' | 'createdByName'>>): Promise<JadwalAbsensi> => {
-  await new Promise(resolve => setTimeout(resolve, 500));
-  const index = mockJadwalAbsensi.findIndex(j => j.id === id);
-  if (index === -1) {
-    throw new Error('Jadwal not found');
-  }
-  
-  mockJadwalAbsensi[index] = { 
-    ...mockJadwalAbsensi[index], 
-    ...data,
-    createdByName: data.createdBy ? getUserNameById(data.createdBy) : mockJadwalAbsensi[index].createdByName
-  };
-  return mockJadwalAbsensi[index];
-};
+export async function updateJadwalAbsensi(id: string, data: { title: string; description: string; tanggal: string }): Promise<JadwalAbsensi> {
+  const res = await fetch(`/api/admin/absen/${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error('Failed to update jadwal');
+  const { data: jadwal } = await res.json();
+  return jadwal;
+}
 
-export const deleteJadwalAbsensi = async (id: string): Promise<void> => {
-  await new Promise(resolve => setTimeout(resolve, 500));
-  const index = mockJadwalAbsensi.findIndex(j => j.id === id);
-  if (index > -1) {
-    mockJadwalAbsensi.splice(index, 1);
-  }
-};
+export async function deleteJadwalAbsensi(id: string): Promise<boolean> {
+  const res = await fetch(`/api/admin/absen/${id}`, {
+    method: 'DELETE',
+    credentials: 'include',
+  });
+  if (!res.ok) throw new Error('Failed to delete jadwal');
+  return true;
+}
 
+// API functions
 export const getMateri = async (): Promise<Materi[]> => {
   await new Promise(resolve => setTimeout(resolve, 500));
   // Add creator names to the response
@@ -231,8 +222,15 @@ export const submitAbsensi = async (jadwalId: string, userId: string, status: 'H
 
 // User management functions
 export const getUsers = async (): Promise<UserData[]> => {
-  await new Promise(resolve => setTimeout(resolve, 500));
-  return mockUsers;
+  // Fetch from API for real backend
+  const res = await fetch('/api/admin/user', { credentials: 'include' });
+  if (!res.ok) throw new Error('Failed to fetch users');
+  const users = await res.json();
+  // If API returns array directly
+  if (Array.isArray(users)) return users;
+  // If API returns { data: [...] }
+  if (users.data) return users.data;
+  return users;
 };
 
 export const createUser = async (data: Omit<UserData, 'id' | 'createdAt'>): Promise<UserData> => {

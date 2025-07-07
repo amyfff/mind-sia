@@ -6,6 +6,7 @@ import { User, AuthState } from '@/lib/auth';
 interface AuthContextType extends AuthState {
   login: (user: User) => void;
   logout: () => void;
+  isLoading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -23,6 +24,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     user: null,
     isAuthenticated: false
   });
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     // Check for stored auth state
@@ -35,6 +37,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         console.error('Error parsing stored auth:', error);
       }
     }
+    setIsLoading(false);
   }, []);
 
   const login = (user: User) => {
@@ -58,6 +61,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   return (
     <AuthContext.Provider value={{
       ...authState,
+      isLoading,
       login,
       logout
     }}>
