@@ -29,7 +29,11 @@ export async function POST(req: NextRequest) {
 
     // Create jadwal absensi
     // tanggal must in future
-    if (new Date(tanggal) <= new Date()) {
+    const inputDate = new Date(tanggal);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Reset ke awal hari
+
+    if (inputDate < today) {
       return NextResponse.json({ error: 'Invalid tanggal' }, { status: 400 })
     }
     const jadwal = await prisma.jadwalAbsensi.create({
