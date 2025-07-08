@@ -37,6 +37,21 @@ export async function GET(req: NextRequest) {
             status: true,
             jadwalId: true,
             createdAt: true,
+            jadwal: {
+              select: {
+                title: true,
+                description: true,
+                tanggal: true,
+                createdAt: true,
+                createdBy: true,
+                admin: {
+                  select: {
+                    name: true,
+                    email: true,
+                  },
+                },
+              },
+            },
           },
         },
       },

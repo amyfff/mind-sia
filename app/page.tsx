@@ -75,13 +75,11 @@ export default function Home() {
             <div className="space-y-8">
               <div className="space-y-4">
                 <h1 className="text-5xl font-bold text-gray-900 leading-tight">
-                  Belajar Sistem
-                  <span className="text-green-500"> Informasi</span>
-                  <br />
-                  Akademik
+                  Belajar
+                  <span className="text-green-500"> Bahasa Inggris</span>
                 </h1>
                 <p className="text-xl text-gray-600 leading-relaxed">
-                  Master sistem dan manajemen pembelajaran dengan Mind SIA - platform terdepan untuk pendidikan modern.
+                  Master Bahasa Inggris dan manajemen pembelajaran dengan Mind SIA - platform terdepan untuk pendidikan modern.
                 </p>
               </div>
               

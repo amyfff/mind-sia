@@ -34,6 +34,7 @@ export const Sidebar = () => {
     if (user?.role === 'ADMIN') {
       baseItems.push(
         { href: '/dashboard/users', label: 'Users', icon: Users },
+        { href: '/dashboard/absensi', label: 'Absensi', icon: Users }
       );
     }
 
