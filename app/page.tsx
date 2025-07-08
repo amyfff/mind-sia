@@ -252,14 +252,14 @@ export default function Home() {
             <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow duration-300">
               <div className="relative">
                 <div className="h-48 bg-linear-to-br from-purple-500 to-pink-500 rounded-t-lg flex items-center justify-center">
-                  <div className="text-white text-6xl font-bold">UI</div>
+                  <div className="text-white text-6xl font-bold">BASIC</div>
                 </div>
                 <Badge className="absolute top-4 right-4 bg-white text-gray-900">Best Seller</Badge>
               </div>
               <CardContent className="p-6">
-                <h3 className="text-xl font-semibold mb-2">Figma UI UX Design</h3>
+                <h3 className="text-xl font-semibold mb-2">Basic English lesson</h3>
                 <p className="text-gray-600 mb-4">
-                  Learn Figma to get a job in UI Design. User Interface, User Experience design.
+                  Learn Basic English.
                 </p>
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center space-x-1">
@@ -274,7 +274,7 @@ export default function Home() {
                 </div>
                 <div className="flex items-center justify-between text-sm text-gray-600">
                   <span>Jane Cooper</span>
-                  <span>Design</span>
+                  <span>Basic English</span>
                 </div>
               </CardContent>
             </Card>
@@ -282,14 +282,14 @@ export default function Home() {
             <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow duration-300">
               <div className="relative">
                 <div className="h-48 bg-linear-to-br from-blue-500 to-cyan-500 rounded-t-lg flex items-center justify-center">
-                  <div className="text-white text-4xl font-bold">WEB</div>
+                  <div className="text-white text-4xl font-bold">BEGINNER</div>
                 </div>
                 <Badge className="absolute top-4 right-4 bg-white text-gray-900">Popular</Badge>
               </div>
               <CardContent className="p-6">
                 <h3 className="text-xl font-semibold mb-2">Learn With Shoaib</h3>
                 <p className="text-gray-600 mb-4">
-                  Design Web Sites and Mobile Apps that Your Users Love and Return to Again.
+                  Learn the fundamentals of English with our interactive course.
                 </p>
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center space-x-1">
@@ -304,7 +304,7 @@ export default function Home() {
                 </div>
                 <div className="flex items-center justify-between text-sm text-gray-600">
                   <span>Jenny Wilson</span>
-                  <span>Development</span>
+                  <span>Basic English</span>
                 </div>
               </CardContent>
             </Card>
@@ -312,14 +312,14 @@ export default function Home() {
             <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow duration-300">
               <div className="relative">
                 <div className="h-48 bg-linear-to-br from-green-500 to-teal-500 rounded-t-lg flex items-center justify-center">
-                  <div className="text-white text-4xl font-bold">API</div>
+                  <div className="text-white text-4xl font-bold">INTERMEDIATE</div>
                 </div>
                 <Badge className="absolute top-4 right-4 bg-white text-gray-900">New</Badge>
               </div>
               <CardContent className="p-6">
-                <h3 className="text-xl font-semibold mb-2">Building User Interface</h3>
+                <h3 className="text-xl font-semibold mb-2">Building your English skills</h3>
                 <p className="text-gray-600 mb-4">
-                  Learn how to apply User Experience (UX) principles to your website designs.
+                  Learn how to talk about yourself, your family, and your daily life in English.
                 </p>
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center space-x-1">
@@ -334,7 +334,7 @@ export default function Home() {
                 </div>
                 <div className="flex items-center justify-between text-sm text-gray-600">
                   <span>Esther Howard</span>
-                  <span>Design</span>
+                  <span>Intermediate</span>
                 </div>
               </CardContent>
             </Card>
